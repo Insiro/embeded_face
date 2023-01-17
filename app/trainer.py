@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tqdm import tqdm
 from keras.callbacks import Callback
+from typing import Union
 
 
 class AccMatrix:
@@ -43,7 +44,7 @@ class ModelTrainer:
         self.test_loss = tf.keras.metrics.Mean(name="train_loss")
         self.callback: list[Callback] = []
 
-    def add_callback(self, callback: Callback | list[Callback]):
+    def add_callback(self, callback: Union[Callback, list[Callback]]):
         if callback is Callback:
             self.callback.append(callback)
         else:

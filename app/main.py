@@ -37,12 +37,20 @@ ckpoint = ModelCheckpoint(
     filepath=SAVE_PATH, monitor="test_loss", verbose=1, save_best_only=True
 )
 
-callbacks = [SaveModelCallbacak(SAVE_PATH, "train"), SaveSummaryCallback(SAVE_PATH)]
+callbacks = [
+    SaveModelCallbacak(SAVE_PATH, "train"),
+    SaveSummaryCallback(log_path=SAVE_PATH, save_logs=True),
+]
+
+
+lr_scheduler = keras.optimizers.schedules.CosineDecayRestarts(
+    initial_learning_rate=0.001, first_decay_steps=50, t_mul=2, m_mul=0.9
+)
 
 with tf.device("/gpu:0"):
     model = face_mobile(510)
     loss_function = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    optimizer = keras.optimizers.Adam()
+    optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
     train_loss = keras.metrics.Mean(name="train_loss")
     train_acc = keras.metrics.SparseCategoricalAccuracy(name="train_acc")

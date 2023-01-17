@@ -1,7 +1,10 @@
 import tensorflow as tf
 from tqdm import tqdm
+
+keras = tf.keras
 from keras.callbacks import Callback
 from typing import Union
+from util import TrainingLog
 
 
 class AccMatrix:
@@ -74,26 +77,22 @@ class ModelTrainer:
 
     def train(self, epochs, train_set, test_set):
         for callback in self.callback:
-            callback.on_epoch_begin(self)
+            callback.on_train_begin(self)
+        logs = TrainingLog(self.model)
+
         for epoch in range(epochs):
             self.reset_states()
             for image, labels in tqdm(train_set, desc=f"train {epoch}epoch"):
                 self.train_step(image, labels)
-            print(
-                f"Acc : {self.acc_matrix.get_train_str()}\tLoss: {self.train_loss.result()}"
-            )
+            logs.update_train(self.model, self.acc_matrix.train_acc, self.train_loss)
+            for callback in self.callback:
+                callback.on_train_end(logs=logs)
+
             for image, labels in tqdm(test_set, desc=f"test {epoch}epoch"):
                 self.test_step(image, labels)
-
-            print(
-                f"Acc : {self.acc_matrix.get_test_str()}\tLoss: {self.test_loss.result()}",
-            )
-            logs = {
-                "model": self.model,
-                "test_loss": self.test_loss.result(),
-                "train_loss": self.train_loss.result(),
-                "test_acc": self.acc_matrix.test_acc.result(),
-                "train_acc": self.acc_matrix.train_acc.result(),
-            }
+            logs.update_train(self.acc_matrix.test_acc, self.test_loss)
             for callback in self.callback:
-                callback.on_epoch_end(self, epoch, logs=logs)
+                callback.on_test_end(logs=logs)
+
+            for callback in self.callback:
+                callback.on_epoch_end(epoch, logs=logs)

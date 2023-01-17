@@ -1,7 +1,7 @@
 import tensorflow as tf
 from os import path
 from os import listdir, mkdir
-
+from keras.callbacks import Callback
 
 def convert(model):
     coverter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -10,7 +10,7 @@ def convert(model):
     return coverter.convert()
 
 
-class SaveModelCallbacak(tf.keras.callbacks.Callback):
+class SaveModelCallbacak(Callback):
     def __init__(self, base_dir: str = "./", prefix: str = "exp"):
         super().__init__()
         self.path = base_dir
@@ -32,3 +32,19 @@ class SaveModelCallbacak(tf.keras.callbacks.Callback):
     def on_epoch_end(self, logs=None):
         filename = f"epoch{logs.epoch}_loss{logs.test_loss}.h5"
         logs.model.save(path.join(self.save_dir, filename))
+
+class SaveSummaryCallback(Callback):
+    def __init__(self, log_path):
+        super().__init__()
+        self.path = log_path
+    def on_train_begin(self, logs=None):
+        self.writer = tf.summary.create_file_writer(path)
+    @tf.function
+    def on_epoch_end(self, epoch, logs=None):
+        with self.writer.as_default():
+            tf.summary.scalar('test_loss', logs["test_loss"], step=epoch)
+            tf.summary.scalar('train_loss', logs["train_loss"], step=epoch)
+            tf.summary.scalar('test_acc', logs["test_acc"], step=epoch)
+            tf.summary.scalar('train_acc', logs["train_acc"], step=epoch)
+            tf.summary.scalar('lr', self.optimizer.lr, step=epoch)
+        self.writer.flush()

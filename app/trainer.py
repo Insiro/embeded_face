@@ -43,8 +43,11 @@ class ModelTrainer:
         self.test_loss = tf.keras.metrics.Mean(name="train_loss")
         self.callback: list[Callback] = []
 
-    def add_callback(self, callback: Callback):
-        self.callback.append(callback)
+    def add_callback(self, callback: Callback | list[Callback]):
+        if callback is Callback:
+            self.callback.append(callback)
+        else:
+            self.callback.extend(callback)
 
     @tf.function
     def test_step(self, image, labels):
@@ -92,4 +95,4 @@ class ModelTrainer:
                 "train_acc": self.acc_matrix.train_acc.result(),
             }
             for callback in self.callback:
-                callback.on_epoch_end(self, logs=logs)
+                callback.on_epoch_end(self, epoch, logs=logs)

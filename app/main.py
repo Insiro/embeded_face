@@ -3,7 +3,7 @@ import tensorflow as tf
 keras = tf.keras
 from model import face_mobile
 from trainer import ModelTrainer, AccMatrix
-from util import convert
+from util import convert, SaveModelCallbacak, SaveSummaryCallback
 from keras.callbacks import ModelCheckpoint
 
 EPOCHS = 100000
@@ -37,6 +37,7 @@ ckpoint = ModelCheckpoint(
     filepath=SAVE_PATH, monitor="test_loss", verbose=1, save_best_only=True
 )
 
+callbacks = [SaveModelCallbacak(SAVE_PATH, "train"), SaveSummaryCallback(SAVE_PATH)]
 
 with tf.device("/gpu:0"):
     model = face_mobile(510)
@@ -59,6 +60,7 @@ with tf.device("/gpu:0"):
             test_acc=test_acc,
         ),
     )
+    trainer.add_callback(callbacks)
     trainer.train(EPOCHS, train_ds, test_ds)
 
     image, labels = tuple(zip(*val_ds))

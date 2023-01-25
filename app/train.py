@@ -4,7 +4,7 @@ from numba import cuda
 import tensorflow as tf
 
 keras = tf.keras
-from model import face_mobile
+from model import FaceMobile
 from trainer import ModelTrainer, AccMatrix
 from util import convert, PathLoader, load_data
 from callbacks import SaveModelCallbacak, SaveSummaryCallback
@@ -23,7 +23,7 @@ def main(config):
         initial_learning_rate=0.001, first_decay_steps=50, t_mul=2, m_mul=0.9
     )
 
-    model = face_mobile(510)
+    model = FaceMobile(510, shape=(480, 600))
     loss_function = keras.losses.CategoricalCrossentropy(from_logits=True)
     optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
@@ -44,7 +44,7 @@ def main(config):
         ),
     )
     trainer.add_callback(callbacks)
-    trainer.train(config["epochs"], train_ds, test_ds)
+    trainer.train(config["epochs"], test_ds, test_ds)
 
     image, labels = tuple(zip(*val_ds))
     result = model.evaluate(image, labels)

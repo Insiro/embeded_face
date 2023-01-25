@@ -54,7 +54,7 @@ class ModelTrainer:
 
     @tf.function
     def test_step(self, image, labels):
-        pred = self.model(image, labels, training=False)
+        pred = self.model([image, labels], training=False)
         loss = self.loss_function(labels, pred)
         self.test_loss(loss)
         self.acc_matrix.test_acc(labels, pred)
@@ -62,7 +62,7 @@ class ModelTrainer:
     @tf.function
     def train_step(self, images, labels):
         with tf.GradientTape() as grad:
-            pred = self.model(images, labels, training=True)
+            pred = self.model([images, labels], training=True)
             loss = self.loss_function(labels, pred)
         gradinents = grad.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(gradinents, self.model.trainable_variables))

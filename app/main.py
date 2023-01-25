@@ -24,13 +24,13 @@ def main(config):
     )
 
     model = face_mobile(510)
-    loss_function = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    loss_function = keras.losses.CategoricalCrossentropy(from_logits=True)
     optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
     train_loss = keras.metrics.Mean(name="train_loss")
-    train_acc = keras.metrics.SparseCategoricalAccuracy(name="train_acc")
+    train_acc = keras.metrics.CategoricalAccuracy(name="train_acc")
     test_loss = keras.metrics.Mean(name="test_loss")
-    test_acc = keras.metrics.SparseCategoricalAccuracy(name="test_acc")
+    test_acc = keras.metrics.CategoricalAccuracy(name="test_acc")
     trainer = ModelTrainer(
         model,
         None,

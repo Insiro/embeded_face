@@ -11,7 +11,7 @@ from callbacks import SaveModelCallbacak, SaveSummaryCallback
 
 
 def main(config):
-    pathLoader = PathLoader("./output")
+    pathLoader = PathLoader(config["output_dir"])
     train_ds, test_ds, val_ds, _class_names = load_data(config, "test")
 
     callbacks = [

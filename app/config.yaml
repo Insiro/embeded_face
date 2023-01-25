@@ -1,0 +1,7 @@
+batch_size: 5
+valid_split: 0.2
+dir:
+    data: /data/01.datasets/MorphedImageBank
+    test: /data/01.datasets/MorphedImage/Female
+output_dir: ./output
+epochs: 1000

@@ -39,7 +39,7 @@ def load_data(config, dir="data"):
 
 class TrainingLog:
     def __init__(self, model) -> None:
-        self.model = model
+        self.model: tf.keras.Model = model
         self.test_loss = None
         self.train_loss = None
         self.test_acc = None
@@ -75,6 +75,7 @@ class PathLoader:
             if not path.exists(folder_name):
                 mkdir(folder_name)
                 self.save_dir = folder_name
+                print(f"output_dir : {self.save_dir}")
                 return
 
     def get_save_path(self):

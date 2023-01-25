@@ -18,28 +18,31 @@ class SaveModelCallbacak(Callback):
             return
         if self.loss is None or self.loss > logs.test_loss:
             self.loss = logs.test_loss
-            filename = f"epoch{epoch}_loss{self.loss}.h5"
+            filename = f"epoch{epoch}_loss{self.loss:.5f}_acc{logs.test_acc:.3f}"
             logs.model.save(path.join(self.save_dir, filename))
 
 
 class SaveSummaryCallback(Callback):
-    def __init__(self, path_loader: PathLoader):
+    def __init__(self, path_loader: PathLoader, save_logs=True):
         super().__init__()
         self.save_dir = path_loader.get_save_path()
+        self.save_logs = save_logs
 
     def on_train_begin(self, logs: Optional[TrainingLog] = None):
         if self.save_logs == True:
-            self.writer = tf.summary.create_file_writer(self.path)
+            self.writer = tf.summary.create_file_writer(self.save_dir)
 
     def on_train_end(self, logs: Optional[TrainingLog] = None):
         if logs is None:
             return
-        print(f"Acc : {logs.train_acc}\tLoss: {logs.train_loss}")
+        print(
+            f"\tAcc : {logs.train_acc}\tLoss: {logs.train_loss}\t lr : {float(logs.lr)}"
+        )
 
     def on_test_end(self, logs: Optional[TrainingLog] = None):
         if logs is None:
             return
-        print(f"Acc : {logs.test_acc}\tLoss: {logs.test_loss}")
+        print(f"\tAcc : {logs.test_acc}\tLoss: {logs.test_loss}")
 
     @tf.function
     def on_epoch_end(self, epoch, logs: Optional[TrainingLog] = None):

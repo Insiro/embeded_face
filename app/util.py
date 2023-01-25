@@ -16,15 +16,17 @@ class TrainingLog:
         self.train_loss = None
         self.test_acc = None
         self.train_acc = None
+        self.lr = 0
 
     def update_test(self, acc, loss):
         self.test_acc = acc.result()
         self.test_loss = loss.result()
 
-    def update_train(self, model, acc, loss):
+    def update_train(self, model, acc, loss, lr):
         self.model = model
         self.train_acc = acc.result()
         self.train_loss = loss.result()
+        self.lr = lr
 
 
 class PathLoader:

@@ -15,7 +15,6 @@ class AccMatrix:
         self.test_acc = test_acc
 
     def reset_states(self):
-
         self.train_acc.reset_states()
         self.test_acc.reset_states()
 
@@ -84,7 +83,12 @@ class ModelTrainer:
             self.reset_states()
             for image, labels in tqdm(train_set, desc=f"train {epoch}epoch"):
                 self.train_step(image, labels)
-            logs.update_train(self.model, self.acc_matrix.train_acc, self.train_loss)
+            logs.update_train(
+                self.model,
+                self.acc_matrix.train_acc,
+                self.train_loss,
+                self.optimizer.lr,
+            )
             for callback in self.callback:
                 callback.on_train_end(logs=logs)
 

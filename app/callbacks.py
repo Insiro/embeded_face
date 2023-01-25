@@ -50,5 +50,5 @@ class SaveSummaryCallback(Callback):
             tf.summary.scalar("train_loss", logs.train_loss, step=epoch)
             tf.summary.scalar("test_acc", logs.test_acc, step=epoch)
             tf.summary.scalar("train_acc", logs.train_acc, step=epoch)
-            tf.summary.scalar("lr", self.optimizer.lr, step=epoch)
+            tf.summary.scalar("lr", logs.lr, step=epoch)
         self.writer.flush()

@@ -3,12 +3,14 @@ import tensorflow as tf
 keras = tf.keras
 from model import face_mobile
 from trainer import ModelTrainer, AccMatrix
-from util import convert, SaveModelCallbacak, SaveSummaryCallback
-from keras.callbacks import ModelCheckpoint
+from util import convert, PathLoader
+from callbacks import SaveModelCallbacak, SaveSummaryCallback
 
 EPOCHS = 100000
 BATCH_SIZE = 5
 DATA_DIR = "/data/01.datasets/MorphedImage/Female"
+
+pathLoader = PathLoader("./output")
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     DATA_DIR,
     validation_split=0.2,
@@ -33,13 +35,11 @@ class_names = train_ds.class_names
 
 SAVE_PATH = "./output/"
 model = None
-ckpoint = ModelCheckpoint(
-    filepath=SAVE_PATH, monitor="test_loss", verbose=1, save_best_only=True
-)
+
 
 callbacks = [
-    SaveModelCallbacak(SAVE_PATH, "train"),
-    SaveSummaryCallback(log_path=SAVE_PATH, save_logs=True),
+    SaveModelCallbacak(path_loader=pathLoader),
+    SaveSummaryCallback(path_loader=pathLoader),
 ]
 
 

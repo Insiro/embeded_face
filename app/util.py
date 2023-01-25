@@ -9,6 +9,34 @@ def convert(model):
     return coverter.convert()
 
 
+def load_data(config, dir="data"):
+    data_path = config["dir"][dir]
+    train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        data_path,
+        validation_split=config["valid_split"],
+        subset="training",
+        label_mode="categorical",
+        seed=123,
+        image_size=(480, 600),
+        batch_size=config["batch_size"],
+    )
+    val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        data_path,
+        validation_split=config["valid_split"],
+        subset="validation",
+        label_mode="categorical",
+        seed=123,
+        image_size=(480, 600),
+        batch_size=config["batch_size"],
+    )
+    val_batches = tf.data.experimental.cardinality(val_ds)
+
+    test_ds = val_ds.take((2 * val_batches) // 2)
+    val_ds = val_ds.skip((2 * val_batches) // 2)
+    class_names = train_ds.class_names
+    return train_ds, test_ds, val_ds, class_names
+
+
 class TrainingLog:
     def __init__(self, model) -> None:
         self.model = model

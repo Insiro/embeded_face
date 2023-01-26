@@ -1,5 +1,6 @@
-from typing import Optional
 from os import path
+from typing import Optional
+
 import tensorflow as tf
 
 keras = tf.keras

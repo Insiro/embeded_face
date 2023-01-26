@@ -1,14 +1,15 @@
-import yaml
 from os import path
-from numba import cuda
+
 import tensorflow as tf
+import yaml
+from numba import cuda
 
 keras = tf.keras
-from model import FaceMobile
-from metrics import ArcLoss
-from trainer import ModelTrainer, AccMatrix
-from util import convert, PathLoader, load_data
 from callbacks import SaveModelCallbacak, SaveSummaryCallback
+from metrics import ArcLoss
+from model import FaceMobile
+from trainer import AccMatrix, ModelTrainer
+from util import PathLoader, convert, load_data
 
 
 def main(config):

@@ -1,9 +1,11 @@
+from typing import Union
+
 import tensorflow as tf
 from tqdm import tqdm
 
 keras = tf.keras
+
 from keras.callbacks import Callback
-from typing import Union
 from util import TrainingLog
 
 

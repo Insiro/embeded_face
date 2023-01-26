@@ -1,9 +1,10 @@
 import tensorflow as tf
 
 keras = tf.keras
-from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D, BatchNormalization, Layer
 from keras.applications import MobileNet
+from keras.layers import (BatchNormalization, Dense, GlobalAveragePooling2D,
+                          Layer)
+from keras.models import Model
 
 
 class FaceMobile(Model):

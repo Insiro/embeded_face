@@ -1,11 +1,11 @@
+import numpy as np
 import tensorflow as tf
 
 keras = tf.keras
 from keras import backend as K
-from keras.layers import Layer
 from keras import regularizers
+from keras.layers import Layer
 from keras.losses import Loss
-import numpy as np
 
 
 class ArcFace(Layer):

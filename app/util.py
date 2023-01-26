@@ -1,4 +1,5 @@
-from os import path, mkdir, makedirs
+from os import makedirs, mkdir, path
+
 import tensorflow as tf
 
 

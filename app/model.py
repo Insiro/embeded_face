@@ -2,10 +2,8 @@ import tensorflow as tf
 
 keras = tf.keras
 from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D, BatchNormalization, Input
+from keras.layers import Dense, GlobalAveragePooling2D, BatchNormalization, Layer
 from keras.applications import MobileNet
-
-from metrics import ArcFace
 
 
 class FaceMobile(Model):
@@ -18,19 +16,39 @@ class FaceMobile(Model):
         self.mobilenet.trainable = False
         self.batch_norm = BatchNormalization()
         self.dense1 = Dense(1024, activation="relu")
-        self.dense2 = Dense(1024, activation="relu")
-        # self.dense3 = Dense(512, activation="relu")
-        # self.dense4 = Dense(num_classes, activation="softmax")
-        self.arc = ArcFace(num_classes)
+        self.dense2 = Dense(512, activation="relu")
+        self.arc = ArcLayer(num_classes)
 
-    def call(self, inputs, training=True):
-        x, y = inputs
+    @tf.function
+    def call(self, inputs):
+        x = inputs
         x = self.mobilenet(x)
         x = self.avgpool(x)
         x = self.batch_norm(x)
         x = self.dense1(x)
         x = self.dense2(x)
-        # x = self.dense3(x)
-        # x = self.dense4(x)
-        x = self.arc([x, y])
+        x = self.arc(x)
         return x
+
+
+class ArcLayer(Layer):
+    def __init__(self, n_classes, kernel_regularizer=None, **kwargs):
+        super(ArcLayer, self).__init__(**kwargs)
+        self.n_classes = n_classes
+        self.kernel_regularizer = kernel_regularizer
+
+    def build(self, input_shape):
+        self.kernel = self.add_weight(
+            shape=[input_shape[-1], self.n_classes],
+            dtype=tf.float32,
+            initializer=keras.initializers.HeNormal(),
+            # regularizer=self.kernel_regularizer,
+            trainable=True,
+            name="kernel",
+        )
+        self.built = True
+
+    @tf.function
+    def call(self, inputs):
+        weights = tf.nn.l2_normalize(self.kernel, axis=0)
+        return tf.matmul(inputs, weights)

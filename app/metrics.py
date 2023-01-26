@@ -1,8 +1,11 @@
+import tensorflow as tf
+
+keras = tf.keras
 from keras import backend as K
 from keras.layers import Layer
 from keras import regularizers
-
-import tensorflow as tf
+from keras.losses import Loss
+import numpy as np
 
 
 class ArcFace(Layer):
@@ -25,7 +28,6 @@ class ArcFace(Layer):
 
     def call(self, inputs):
         x, y = inputs
-        c = K.shape(x)[-1]
         # normalize feature
         x = tf.nn.l2_normalize(x, axis=1)
         # normalize weights
@@ -50,6 +52,32 @@ class ArcFace(Layer):
 
     def compute_output_shape(self, input_shape):
         return (None, self.n_classes)
+
+
+class ArcLoss(Loss):
+    def __init__(self, scale=30.0, margin=0.50, name="arcloss"):
+        super().__init__(name=name)
+        self.scale = scale
+        self.margin = margin
+        self.threshold = tf.math.cos(np.pi - margin)
+        self.cos_m = tf.math.cos(margin)
+        self.sin_m = tf.math.sin(margin)
+        self.safe_margin = self.sin_m * margin
+
+    @tf.function
+    def call(self, y_true, y_pred):
+        theta = tf.acos(K.clip(y_pred, -1.0 + K.epsilon(), 1.0 - K.epsilon()))
+        target_logits = tf.cos(theta + self.margin)
+        # sin = tf.sqrt(1 - logits**2)
+        # cos_m = tf.cos(logits)
+        # sin_m = tf.sin(logits)
+        # target_logits = logits * cos_m - sin * sin_m
+        #
+        logits = y_pred * (1 - y_true) + target_logits * y_true
+        # feature re-scale
+        logits *= self.scale
+        out = tf.nn.softmax(logits)
+        return out
 
 
 class SphereFace(Layer):

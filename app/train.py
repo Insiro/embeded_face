@@ -5,6 +5,7 @@ import tensorflow as tf
 
 keras = tf.keras
 from model import FaceMobile
+from metrics import ArcLoss
 from trainer import ModelTrainer, AccMatrix
 from util import convert, PathLoader, load_data
 from callbacks import SaveModelCallbacak, SaveSummaryCallback
@@ -24,7 +25,7 @@ def main(config):
     )
 
     model = FaceMobile(510, shape=(480, 600))
-    loss_function = keras.losses.CategoricalCrossentropy(from_logits=True)
+    loss_function = ArcLoss()
     optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
     train_loss = keras.metrics.Mean(name="train_loss")

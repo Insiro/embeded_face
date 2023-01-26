@@ -7,7 +7,7 @@ from numba import cuda
 keras = tf.keras
 from callbacks import SaveModelCallbacak, SaveSummaryCallback
 from metrics import ArcLoss
-from model import FaceMobile
+from model import build_face_model
 from trainer import AccMatrix, ModelTrainer
 from util import PathLoader, convert, load_data
 
@@ -24,8 +24,8 @@ def main(config):
     lr_scheduler = keras.optimizers.schedules.CosineDecayRestarts(
         initial_learning_rate=0.001, first_decay_steps=50, t_mul=2, m_mul=0.9
     )
-
-    model = FaceMobile(510, shape=(480, 600))
+    # model = FaceMobile(510, shape=(480, 640))
+    model = build_face_model(510, shape=config["shape"])
     loss_function = ArcLoss()
     optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
@@ -46,7 +46,7 @@ def main(config):
         ),
     )
     trainer.add_callback(callbacks)
-    trainer.train(config["epochs"], test_ds, test_ds)
+    trainer.train(config["epochs"], train_ds, test_ds)
 
     image, labels = tuple(zip(*val_ds))
     result = model.evaluate(image, labels)

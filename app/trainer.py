@@ -16,6 +16,7 @@ class AccMatrix:
         self.test_loss = test_loss
         self.test_acc = test_acc
 
+    @tf.function
     def reset_states(self):
         self.train_acc.reset_states()
         self.test_acc.reset_states()
@@ -57,7 +58,7 @@ class ModelTrainer:
     @tf.function
     def test_step(self, images, labels):
         pred = self.model(images)
-        loss = self.loss_function(labels, pred)
+        loss = self.loss_function(labels, pred) + sum(self.model.losses)
         self.test_loss(loss)
         self.acc_matrix.test_acc(labels, pred)
 

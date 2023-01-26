@@ -2,8 +2,7 @@ import tensorflow as tf
 
 keras = tf.keras
 from keras.applications import MobileNet
-from keras.layers import (BatchNormalization, Dense, GlobalAveragePooling2D,
-                          Layer)
+from keras.layers import BatchNormalization, Dense, GlobalAveragePooling2D, Layer, Input
 from keras.models import Model
 
 
@@ -53,3 +52,19 @@ class ArcLayer(Layer):
     def call(self, inputs):
         weights = tf.nn.l2_normalize(self.kernel, axis=0)
         return tf.matmul(inputs, weights)
+
+
+def build_face_model(num_calsses, shape=(480, 640)):
+    print("shape", shape)
+    inputs = Input(shape=(shape[0], shape[1], 3))
+    mobilenet = MobileNet(
+        weights="imagenet", include_top=False, input_shape=(shape[0], shape[1], 3)
+    )
+    mobilenet.trainable = False
+    x = mobilenet(inputs)
+    x = GlobalAveragePooling2D()(x)
+    x = BatchNormalization()(x)
+    x = Dense(1024, activation="relu")(x)
+    x = Dense(512, activation="relu")(x)
+    out = ArcLayer(num_calsses)(x)
+    return Model(inputs=inputs, outputs=out)

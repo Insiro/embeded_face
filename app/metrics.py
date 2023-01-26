@@ -5,7 +5,7 @@ keras = tf.keras
 from keras import backend as K
 from keras import regularizers
 from keras.layers import Layer
-from keras.losses import Loss
+from keras.losses import Loss, categorical_crossentropy
 
 
 class ArcFace(Layer):
@@ -76,7 +76,9 @@ class ArcLoss(Loss):
         logits = y_pred * (1 - y_true) + target_logits * y_true
         # feature re-scale
         logits *= self.scale
-        out = tf.nn.softmax(logits)
+        # out = tf.nn.softmax_cross_entropy_with_logits(y_true, logits)
+        # out = tf.nn.sigmoid_cross_entropy_with_logits(y_true, logits)
+        out = categorical_crossentropy(y_true, logits, from_logits=True, label_smoothing=0)
         return out
 
 

@@ -18,7 +18,7 @@ def load_data(config, dir="data"):
         subset="training",
         label_mode="categorical",
         seed=123,
-        image_size=(480, 600),
+        image_size=config["shape"],
         batch_size=config["batch_size"],
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -27,7 +27,7 @@ def load_data(config, dir="data"):
         subset="validation",
         label_mode="categorical",
         seed=123,
-        image_size=(480, 600),
+        image_size=config["shape"],
         batch_size=config["batch_size"],
     )
     val_batches = tf.data.experimental.cardinality(val_ds)

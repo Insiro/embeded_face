@@ -9,13 +9,14 @@ from callbacks import SaveModelCallbacak, SaveSummaryCallback
 from metrics import ArcLoss
 from model import build_face_model
 from trainer import AccMatrix, ModelTrainer
-from util import PathLoader, convert, load_data
+from util import PathLoader, convert, load_data2
 
 
 def main(config):
     pathLoader = PathLoader(config["output_dir"])
-    train_ds, test_ds, val_ds, _class_names = load_data(config, "test")
-
+    train_ds, val_ds, test_ds, _class_names = load_data2(config)
+    with open("classes.txt", "w") as f:
+        f.write("\n".join(_class_names))
     callbacks = [
         SaveModelCallbacak(path_loader=pathLoader),
         SaveSummaryCallback(path_loader=pathLoader),
@@ -25,7 +26,7 @@ def main(config):
         initial_learning_rate=0.001, first_decay_steps=50, t_mul=2, m_mul=0.9
     )
     # model = FaceMobile(510, shape=(480, 640))
-    model = build_face_model(510, shape=config["shape"])
+    model = build_face_model(config["classes"], shape=config["shape"])
     loss_function = ArcLoss()
     optimizer = keras.optimizers.Adam(learning_rate=lr_scheduler)
 
@@ -46,7 +47,7 @@ def main(config):
         ),
     )
     trainer.add_callback(callbacks)
-    trainer.train(config["epochs"], train_ds, test_ds)
+    trainer.train(config["epochs"], train_ds, val_ds)
 
     image, labels = tuple(zip(*val_ds))
     result = model.evaluate(image, labels)

@@ -66,8 +66,7 @@ class ModelTrainer:
     def train_step(self, images, labels):
         with tf.GradientTape() as grad:
             pred = self.model(images)
-            loss = self.loss_function(labels, pred)
-            loss += sum(self.model.losses)
+            loss = self.loss_function(labels, pred) + sum(self.model.losses)
         gradinents = grad.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(gradinents, self.model.trainable_variables))
         self.train_loss(loss)
@@ -96,7 +95,7 @@ class ModelTrainer:
             for callback in self.callback:
                 callback.on_train_end(logs=logs)
 
-            for image, labels in tqdm(test_set, desc=f"test {epoch} epoch"):
+            for image, labels in tqdm(test_set, desc=f"test  {epoch} epoch"):
                 self.test_step(image, labels)
             logs.update_test(self.acc_matrix.test_acc, self.test_loss)
             for callback in self.callback:

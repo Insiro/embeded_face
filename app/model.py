@@ -2,7 +2,14 @@ import tensorflow as tf
 
 keras = tf.keras
 from keras.applications import MobileNet
-from keras.layers import BatchNormalization, Dense, GlobalAveragePooling2D, Layer, Input
+from keras.layers import (
+    BatchNormalization,
+    Dense,
+    GlobalAveragePooling2D,
+    Layer,
+    Input,
+    Softmax,
+)
 from keras.models import Model
 
 
@@ -35,14 +42,12 @@ class ArcLayer(Layer):
     def __init__(self, n_classes, kernel_regularizer=None, **kwargs):
         super(ArcLayer, self).__init__(**kwargs)
         self.n_classes = n_classes
-        self.kernel_regularizer = kernel_regularizer
 
     def build(self, input_shape):
         self.kernel = self.add_weight(
             shape=[input_shape[-1], self.n_classes],
             dtype=tf.float32,
             initializer=keras.initializers.HeNormal(),
-            # regularizer=self.kernel_regularizer,
             trainable=True,
             name="kernel",
         )
@@ -67,4 +72,5 @@ def build_face_model(num_calsses, shape=(480, 640)):
     x = Dense(1024, activation="relu")(x)
     x = Dense(512, activation="relu")(x)
     out = ArcLayer(num_calsses)(x)
+    x = Softmax()(x)
     return Model(inputs=inputs, outputs=out)

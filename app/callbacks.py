@@ -1,6 +1,5 @@
 from os import path
 from typing import Optional
-import logging
 
 import tensorflow as tf
 
@@ -36,7 +35,7 @@ class SaveModelCallbacak(Callback):
             logs.model.save_weights(
                 path.join(self.save_dir, filename), save_format="h5"
             )
-            logging.warn(f"loss is decreased, file saved to {filename}")
+            print("loss is decreased, file saved to {filename}")
 
 
 class SaveSummaryCallback(Callback):
@@ -52,14 +51,14 @@ class SaveSummaryCallback(Callback):
     def on_train_end(self, logs: Optional[TrainingLog] = None):
         if logs is None:
             return
-        logging.warn(
+        print(
             f"\tAcc : {logs.train_acc}\tLoss: {logs.train_loss}\t lr : {float(logs.lr)}"
         )
 
     def on_test_end(self, logs: Optional[TrainingLog] = None):
         if logs is None:
             return
-        logging.warn(f"\tAcc : {logs.test_acc}\tLoss: {logs.test_loss}")
+        print("\tAcc : {logs.test_acc}\tLoss: {logs.test_loss}")
 
     @tf.function
     def on_epoch_end(self, epoch, logs: Optional[TrainingLog] = None):

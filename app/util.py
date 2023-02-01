@@ -72,13 +72,13 @@ class TrainingLog:
         self.test_acc = None
         self.train_acc = None
         self.lr = 0
+        self.stop_train = False
 
     def update_test(self, acc, loss):
         self.test_acc = acc.result()
         self.test_loss = loss.result()
 
-    def update_train(self, model, acc, loss, lr):
-        self.model = model
+    def update_train(self, acc, loss, lr):
         self.train_acc = acc.result()
         self.train_loss = loss.result()
         self.lr = lr

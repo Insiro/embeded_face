@@ -87,7 +87,6 @@ class ModelTrainer:
             for image, labels in tqdm(train_set, desc=f"train {epoch} epoch"):
                 self.train_step(image, labels)
             logs.update_train(
-                self.model,
                 self.acc_matrix.train_acc,
                 self.train_loss,
                 self.optimizer.lr,
@@ -103,3 +102,7 @@ class ModelTrainer:
 
             for callback in self.callback:
                 callback.on_epoch_end(epoch, logs=logs)
+            if logs.stop_train:
+                break
+        for callback in self.callback:
+            callback.on_train_end(logs=logs)

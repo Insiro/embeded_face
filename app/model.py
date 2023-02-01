@@ -60,7 +60,6 @@ class ArcLayer(Layer):
 
 
 def build_face_model(num_calsses, shape=(480, 640)):
-    print("shape", shape)
     inputs = Input(shape=(shape[0], shape[1], 3))
     mobilenet = MobileNet(
         weights="imagenet", include_top=False, input_shape=(shape[0], shape[1], 3)

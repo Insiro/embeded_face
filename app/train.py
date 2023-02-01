@@ -1,3 +1,4 @@
+import json
 from os import path
 
 import tensorflow as tf
@@ -5,7 +6,8 @@ import yaml
 from numba import cuda
 
 keras = tf.keras
-from callbacks import SaveModelCallbacak, SaveSummaryCallback
+from callbacks import EarchStop, SaveModelCallbacak, SaveSummaryCallback
+from evaluate import evaluate
 from metrics import ArcLoss
 from model import build_face_model
 from trainer import AccMatrix, ModelTrainer
@@ -20,6 +22,7 @@ def main(config):
     callbacks = [
         SaveModelCallbacak(path_loader=pathLoader),
         SaveSummaryCallback(path_loader=pathLoader),
+        EarchStop(path_loader=pathLoader),
     ]
 
     lr_scheduler = keras.optimizers.schedules.CosineDecayRestarts(
@@ -49,10 +52,11 @@ def main(config):
     trainer.add_callback(callbacks)
     trainer.train(config["epochs"], train_ds, val_ds)
 
-    image, labels = tuple(zip(*val_ds))
-    result = model.evaluate(image, labels)
-    with open(path.join(pathLoader.get_save_path(), "result.txt"), "w") as ff:
-        ff.write(result)
+    test = test_ds if test_ds is not None else val_ds
+    ret = evaluate(model, test, as_dict=True)
+
+    with open(path.join(pathLoader.get_save_path(), "result.json"), "w") as ff:
+        json.dump(ret, ff)
 
     model.save(path.join(pathLoader.get_save_path(), "./fianl.h5"))
     open(path.join(pathLoader.get_save_path(), "./test.tflite"), "wb").write(

@@ -1,13 +1,13 @@
+import logging
 from os import path
 from typing import Optional
-import logging
 
 import numpy as np
-
 import tensorflow as tf
 
 keras = tf.keras
 from keras.callbacks import Callback
+
 from utils.util import PathLoader, TrainingLog
 
 
@@ -132,12 +132,16 @@ class EarchStop(Callback):
         return super().on_train_end(logs)
 
     def _update_best(self, logs: Optional[TrainingLog]):
+        if logs is None:
+            return
         self.best_acc = logs.test_acc
         self.best_loss = logs.test_loss
         if self.save_best:
             self.best_weight = logs.model.get_weights()
 
-    def _is_imporved(self, logs: Optional[TrainingLog]):
+    def _is_imporved(self, logs: Optional[TrainingLog])->bool:
+        if logs is None:
+            return False
         increse_acc = (logs.test_acc - self.acc_delta) > self.best_metrix.acc
         decrease_loss = (logs.test_loss - self.loss_delta) < self.best_metrix.loss
         if self.moniter == "loss":
@@ -148,3 +152,4 @@ class EarchStop(Callback):
             return increse_acc or decrease_loss
         if self.moniter == "all":
             return increse_acc and decrease_loss
+        return decrease_loss

@@ -16,7 +16,7 @@ from data_loader.loader import load_data2
 
 
 def main(config):
-    pathLoader = PathLoader(config["output_dir"])
+    pathLoader = PathLoader(config["dir"]["output"])
     train_ds, val_ds, test_ds, _class_names = load_data2(config)
     with open("classes.txt", "w") as f:
         f.write("\n".join(_class_names))

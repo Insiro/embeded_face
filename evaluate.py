@@ -68,7 +68,7 @@ def _main(coonfig):
     model.load_weights("./output/out2/epoch172_loss2.90466_acc0.416")
     model.summary()
     value = evaluate(model, test_ds, as_dict=True)
-    output_path = path.join(config["output_dir"], "result")
+    output_path = path.join(config['dir']["output"], "result")
     if not path.exists(output_path):
         makedirs(output_path)
     with open(path.join(output_path, "result.json"), "w") as f:

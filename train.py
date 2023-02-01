@@ -3,27 +3,27 @@ from os import path
 
 import tensorflow as tf
 import yaml
-from numba import cuda
+# from numba import cuda
 
 keras = tf.keras
-from callbacks.callbacks import EarchStop, SaveModelCallbacak, SaveSummaryCallback
+from callbacks.callbacks import EarlyStop, SaveModelCallbacak, SaveSummaryCallback
 from evaluate import evaluate
 from metrics.metrics import ArcLoss
 from models.model import build_face_model
 from trainers.trainer import AccMatrix, ModelTrainer
 from utils.util import PathLoader, convert
-from data_loader.loader import load_data2
+from data_loader.loader import load_data
 
 
 def main(config):
     pathLoader = PathLoader(config["dir"]["output"])
-    train_ds, val_ds, test_ds, _class_names = load_data2(config)
+    train_ds, val_ds, test_ds, _class_names = load_data(config)
     with open("classes.txt", "w") as f:
         f.write("\n".join(_class_names))
     callbacks = [
         SaveModelCallbacak(path_loader=pathLoader),
         SaveSummaryCallback(path_loader=pathLoader),
-        EarchStop(path_loader=pathLoader, patience=0),
+        EarlyStop(path_loader=pathLoader),
     ]
 
     lr_scheduler = keras.optimizers.schedules.CosineDecayRestarts(
@@ -66,7 +66,7 @@ def main(config):
 
 
 if __name__ == "__main__":
-    cuda.get_current_device().reset()
+    # cuda.get_current_device().reset()
     with open("./config.yaml", "r") as cf:
         config = yaml.load(cf, Loader=yaml.Loader)
 

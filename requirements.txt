@@ -1,0 +1,6 @@
+numpy
+scikit-learn
+numba
+tensorflow-gpu==2.11
+tqdm
+yaml

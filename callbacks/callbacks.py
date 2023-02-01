@@ -76,7 +76,7 @@ class SaveSummaryCallback(Callback):
         self.writer.flush()
 
 
-class EarchStop(Callback):
+class EarlyStop(Callback):
     class Metrix:
         def reset(self) -> None:
             self.acc = np.Inf

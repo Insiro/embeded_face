@@ -260,3 +260,4 @@ poetry.toml
 
 #model output path
 output/
+classes.txt

@@ -1,13 +1,13 @@
 import tensorflow as tf
 
 
-def load_data(config, dir="data", split_val=False):
+def load_data(config, dir="data", split_val=False, shuffle=True):
     data_path = config["dir"][dir]
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         data_path,
         validation_split=config["valid_split"],
         subset="training",
-        shuffle=False,
+        shuffle=shuffle,
         label_mode="categorical",
         seed=123,
         image_size=config["shape"],
@@ -17,7 +17,7 @@ def load_data(config, dir="data", split_val=False):
         data_path,
         validation_split=config["valid_split"],
         subset="validation",
-        shuffle=False,
+        shuffle=shuffle,
         label_mode="categorical",
         seed=123,
         image_size=config["shape"],
@@ -33,11 +33,11 @@ def load_data(config, dir="data", split_val=False):
     return train_ds, val_ds, test_ds, class_names
 
 
-def load_data2(config):
+def load_data2(config,shuffle=True):
     dir = config["dir"]
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         dir["data"],
-        shuffle=False,
+        shuffle=shuffle,
         label_mode="categorical",
         seed=123,
         image_size=config["shape"],
@@ -45,7 +45,7 @@ def load_data2(config):
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
         dir["test"],
-        shuffle=False,
+        shuffle=shuffle,
         label_mode="categorical",
         seed=123,
         image_size=config["shape"],

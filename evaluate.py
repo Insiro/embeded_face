@@ -1,12 +1,14 @@
-from os import path, makedirs
+import json
+from dataclasses import asdict, dataclass
+from os import makedirs, path
+
 import numpy as np
 import tensorflow as tf
 import yaml
-import json
-from utils.util import load_data2
-from models.model import build_face_model
 from sklearn.metrics import classification_report
-from dataclasses import dataclass, asdict
+
+from models.model import build_face_model
+from utils.util import load_data2
 
 
 @dataclass

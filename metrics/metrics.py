@@ -5,7 +5,7 @@ keras = tf.keras
 from keras import backend as K
 from keras import regularizers
 from keras.layers import Layer
-from keras.losses import Loss, CategoricalCrossentropy
+from keras.losses import CategoricalCrossentropy, Loss
 
 
 class ArcFace(Layer):

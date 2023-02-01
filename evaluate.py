@@ -3,9 +3,9 @@ import numpy as np
 import tensorflow as tf
 import yaml
 import json
-from util import load_data2
-from model import build_face_model
-from sklearn.metrics import confusion_matrix, classification_report
+from utils.util import load_data2
+from models.model import build_face_model
+from sklearn.metrics import classification_report
 from dataclasses import dataclass, asdict
 
 

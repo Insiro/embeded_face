@@ -8,7 +8,7 @@ import tensorflow as tf
 
 keras = tf.keras
 from keras.callbacks import Callback
-from util import PathLoader, TrainingLog
+from utils.util import PathLoader, TrainingLog
 
 
 class SaveModelCallbacak(Callback):

@@ -6,12 +6,13 @@ import yaml
 from numba import cuda
 
 keras = tf.keras
-from callbacks import EarchStop, SaveModelCallbacak, SaveSummaryCallback
+from callbacks.callbacks import EarchStop, SaveModelCallbacak, SaveSummaryCallback
 from evaluate import evaluate
-from metrics import ArcLoss
-from model import build_face_model
-from trainer import AccMatrix, ModelTrainer
-from util import PathLoader, convert, load_data2
+from metrics.metrics import ArcLoss
+from models.model import build_face_model
+from trainers.trainer import AccMatrix, ModelTrainer
+from utils.util import PathLoader, convert
+from data_loader.loader import load_data2
 
 
 def main(config):
@@ -22,7 +23,7 @@ def main(config):
     callbacks = [
         SaveModelCallbacak(path_loader=pathLoader),
         SaveSummaryCallback(path_loader=pathLoader),
-        EarchStop(path_loader=pathLoader),
+        EarchStop(path_loader=pathLoader, patience=0),
     ]
 
     lr_scheduler = keras.optimizers.schedules.CosineDecayRestarts(

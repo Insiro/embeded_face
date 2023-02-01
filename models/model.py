@@ -6,11 +6,11 @@ from keras.layers import (
     BatchNormalization,
     Dense,
     GlobalAveragePooling2D,
-    Layer,
     Input,
     Softmax,
 )
 from keras.models import Model
+from .layers import ArcLayer
 
 
 class FaceMobile(Model):
@@ -36,27 +36,6 @@ class FaceMobile(Model):
         x = self.dense2(x)
         x = self.arc(x)
         return x
-
-
-class ArcLayer(Layer):
-    def __init__(self, n_classes, kernel_regularizer=None, **kwargs):
-        super(ArcLayer, self).__init__(**kwargs)
-        self.n_classes = n_classes
-
-    def build(self, input_shape):
-        self.kernel = self.add_weight(
-            shape=[input_shape[-1], self.n_classes],
-            dtype=tf.float32,
-            initializer=keras.initializers.HeNormal(),
-            trainable=True,
-            name="kernel",
-        )
-        self.built = True
-
-    @tf.function
-    def call(self, inputs):
-        weights = tf.nn.l2_normalize(self.kernel, axis=0)
-        return tf.matmul(inputs, weights)
 
 
 def build_face_model(num_calsses, shape=(480, 640)):

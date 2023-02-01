@@ -6,7 +6,7 @@ from tqdm import tqdm
 keras = tf.keras
 
 from keras.callbacks import Callback
-from util import TrainingLog
+from utils.util import TrainingLog
 
 
 class AccMatrix:

@@ -63,7 +63,6 @@ class SaveSummaryCallback(Callback):
             return
         print(f"\tAcc : {logs.test_acc}\tLoss: {logs.test_loss}")
 
-    @tf.function
     def on_epoch_end(self, epoch, logs: Optional[TrainingLog] = None):
         if logs is None or self.save_logs == False:
             return

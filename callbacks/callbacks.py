@@ -79,16 +79,17 @@ class SaveSummaryCallback(Callback):
 class EarlyStop(Callback):
     class Metrix:
         def reset(self) -> None:
-            self.acc = np.Inf
-            self.loss = -np.Inf
+            self.acc = -np.Inf
+            self.loss = np.Inf
 
     def __init__(
         self,
         path_loader: PathLoader,
         start_epoch=0,
-        save_best=False,
+        save_best=True,
         patience=50,
-        min_delta=0,
+        delta=0,
+        moniter="loss",
     ):
         super().__init__()
         self.start_epoch = start_epoch
@@ -96,9 +97,8 @@ class EarlyStop(Callback):
         self.best_metrix = self.Metrix()
         self.save_dir = path_loader.get_save_path()
         self.patience = patience
-        self.loss_delta = -min_delta
-        self.acc_delta = min_delta
-        self.moniter = "loss"
+        self.delta = np.abs(delta)
+        self.moniter = moniter
 
     def on_train_begin(self, logs=None):
         self.wait = 0
@@ -134,16 +134,17 @@ class EarlyStop(Callback):
     def _update_best(self, logs: Optional[TrainingLog]):
         if logs is None:
             return
+        self.wait = 0
         self.best_acc = logs.test_acc
         self.best_loss = logs.test_loss
         if self.save_best:
             self.best_weight = logs.model.get_weights()
 
-    def _is_imporved(self, logs: Optional[TrainingLog])->bool:
+    def _is_imporved(self, logs: Optional[TrainingLog]) -> bool:
         if logs is None:
             return False
-        increse_acc = (logs.test_acc - self.acc_delta) > self.best_metrix.acc
-        decrease_loss = (logs.test_loss - self.loss_delta) < self.best_metrix.loss
+        increse_acc = (logs.test_acc - self.delta) > self.best_metrix.acc
+        decrease_loss = (logs.test_loss + self.delta) < self.best_metrix.loss
         if self.moniter == "loss":
             return decrease_loss
         if self.moniter == "acc":

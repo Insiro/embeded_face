@@ -111,19 +111,21 @@ class EarlyStop(Callback):
             return
         if self.save_best and self.best_weight is None:
             self.best_weight = logs.model.get_weights()
-        self.wait += 1
         if self._is_imporved(logs):
             self._update_best(logs)
-        if self.wait >= self.patience and epoch > 0:
-            self.stopped_epoch = epoch
-            logs.stop_train = True
-            if self.save_best and self.best_weight is not None:
-                filename = f"best_loss{self.best_metrix.loss:.5f}_acc{self.best_metrix.acc:.3f}"
-                logging.info(f"Restoring model weights to {filename}")
-                logs.model.set_weights(self.best_weight)
-                logs.model.save_weights(
-                    path.join(self.save_dir, filename), save_format="h5"
-                )
+        if self.wait < self.patience or epoch ==0:
+            self.wait += 1
+            return
+        # stop
+        self.stopped_epoch = epoch
+        logs.stop_train = True
+        if self.save_best and self.best_weight is not None:
+            filename = f"best_loss{self.best_metrix.loss:.4f}_acc{self.best_metrix.acc:.3f}"
+            logging.info(f"Restoring model weights to {filename}")
+            logs.model.set_weights(self.best_weight)
+            logs.model.save_weights(
+                path.join(self.save_dir, filename), save_format="h5"
+            )
 
     def on_train_end(self, logs=None):
         if self.stopped_epoch > 0:
@@ -134,8 +136,8 @@ class EarlyStop(Callback):
         if logs is None:
             return
         self.wait = 0
-        self.best_acc = logs.test_acc
-        self.best_loss = logs.test_loss
+        self.best_metrix.acc = logs.test_acc
+        self.best_metrix.loss = logs.test_loss
         if self.save_best:
             self.best_weight = logs.model.get_weights()
 

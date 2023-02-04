@@ -3,8 +3,10 @@ valid_split: 0.2
 dir:
     data: /data/01.datasets/100peopleRegistBank
     test: /data/01.datasets/100peopleBank
-    faceback: /data/01.datasets/facebank
+    facebank: /data/01.datasets/FaceBank/Trained_Regist
+    facebankTest: /data/01.datasets/FaceBank/Trained_Test
     output: ./output
+    hashbank: ./output/HashRegist
 epochs: 1000
 shape: [480, 640]
 classes: 100

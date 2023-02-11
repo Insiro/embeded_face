@@ -78,8 +78,8 @@ class SaveSummaryCallback(Callback):
 class EarlyStop(Callback):
     class Metrix:
         def reset(self) -> None:
-            self.acc = -np.Inf
-            self.loss = np.Inf
+            self.acc:Optional[float]  = -np.Inf
+            self.loss:Optional[float] = np.Inf
 
     def __init__(
         self,

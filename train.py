@@ -3,7 +3,7 @@ from os import path
 
 import tensorflow as tf
 import yaml
-# from numba import cuda
+
 
 keras = tf.keras
 from callbacks.callbacks import EarlyStop, SaveModelCallbacak, SaveSummaryCallback
@@ -18,7 +18,7 @@ from data_loader.loader import load_data
 def main(config):
     pathLoader = PathLoader(config["dir"]["output"])
     train_ds, val_ds, test_ds, _class_names = load_data(config)
-    with open("classes.txt", "w") as f:
+    with open(path.join(config["dir"]["output"], "classes.txt"), "w") as f:
         f.write("\n".join(_class_names))
     callbacks = [
         SaveModelCallbacak(path_loader=pathLoader),

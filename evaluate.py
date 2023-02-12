@@ -5,10 +5,14 @@ from os import makedirs, path
 import numpy as np
 import tensorflow as tf
 import yaml
-from sklearn.metrics import classification_report
+from matplotlib import pyplot as plt
+from sklearn.metrics import auc, classification_report, roc_curve
 from tqdm import tqdm
+
 from models.model import build_face_model
 from utils.util import load_data2
+
+import pandas as pd
 
 
 @dataclass
@@ -36,41 +40,59 @@ def get_values(labels, preds):
     )
 
 
-def evaluate(model, ds, as_dict=False):
+def gen_roc(y_test, y_probs, outdir):
+    num_classes = 100
+    plt.title("ROC curve for multi-class classifier")
+    # Compute the ROC curve for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(num_classes):
+        fpr[i], tpr[i], ths = roc_curve(y_test[:, i], y_probs[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+        plt.plot(
+            fpr[i],
+            tpr[i],
+            label="ROC curve for class {} (area = {:.2f})".format(i, roc_auc[i]),
+        )
+    # Plot the ROC curves for each class
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    df = pd.DataFrame()
+    df["fpr"], df["tpr"], df["ths"] = roc_curve(y_test.ravel(), y_probs.ravel())
+
+    df.to_csv(f"{path.join(outdir,'./TprFprThr.csv') }")
+    plt.savefig(f"{path.join(outdir,'./roc.png') }")
+
+
+def evaluate(model, ds, outdir, as_dict=False):
     predictions = np.array([])
     labels = np.array([])
+    label_onehot = None
+    prob = None
     for x, y in tqdm(ds):
         ret = model.predict(x, verbose=False)
         predictions = np.concatenate([predictions, np.argmax(ret, axis=-1)])
         labels = np.concatenate([labels, np.argmax(y.numpy(), axis=-1)])
-    # mat = multilabel_confusion_matrix(labels, predictions)
+        prob = ret.copy() if prob is None else np.vstack([prob, ret])
+        label_onehot = y if label_onehot is None else np.vstack([label_onehot, y])
+    gen_roc(label_onehot, prob, outdir)
     value, report = get_values(labels, predictions)
-    # ConfusionMatrixDisplay(confusionMatrix).plot(cmap="OrRd")
-    report = classification_report(labels, predictions)
-    recall = tf.keras.metrics.Recall()
-    acc = tf.keras.metrics.Accuracy()
-    precision = tf.keras.metrics.Precision()
-    recall.update_state(labels, predictions)
-    precision.update_state(labels, predictions)
-    acc.update_state(labels, predictions)
-    ret = {
-        "recall": recall.result(),
-        "precision": precision.result(),
-        "acc": acc.result(),
-    }
     print(report)
     if as_dict:
         return asdict(value)
     return value
 
 
-def _main(coonfig):
-    train_ds, test_ds, val_ds, _class_names = load_data2(config)
-    model = build_face_model(100)
-    model.load_weights("./epoch113_loss3.41887_acc0.895")
+def _main(config):
+    _, test_ds, _, _ = load_data2(config)
+    model = build_face_model(config["classes"])
+    model.load_weights(config["weight"])
     model.summary()
-    value = evaluate(model, test_ds, as_dict=True)
     output_path = path.join(config["dir"]["output"], "result")
+    value = evaluate(model, test_ds, output_path, as_dict=True)
     if not path.exists(output_path):
         makedirs(output_path)
     with open(path.join(output_path, "result.json"), "w") as f:

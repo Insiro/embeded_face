@@ -77,23 +77,19 @@ class EmbedLoader:
 
 
 def main():
-    configdir = None
+    config = None
     with open("./config.yaml", "r") as cf:
-        configdir = yaml.load(cf, Loader=yaml.Loader)["dir"]
+        config = yaml.load(cf, Loader=yaml.Loader)
+        configdir = config["dir"]
 
     model = build_face_model(100)
-    model.load_weights("./epoch113_loss3.41887_acc0.895")
+    model.load_weights(config["weight"])
     model = Sequential(model.layers[:-1])
 
     model.summary()
 
     embeds = load_embeds(configdir["hashbank"])
-    if True:
-        ds = EmbedLoader(configdir["facebankTest"])
-        print("Test")
-    else:
-        print("Train")
-        ds = EmbedLoader(configdir["facebank"])
+    ds = EmbedLoader(configdir["facebankTest"])
     evaluate(model, ds, embeds)
 
 

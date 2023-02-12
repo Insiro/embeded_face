@@ -10,3 +10,4 @@ dir:
 epochs: 1000
 shape: [480, 640]
 classes: 100
+weight: ./weights/epoch113_loss3.41887_acc0.895

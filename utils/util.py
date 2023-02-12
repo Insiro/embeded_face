@@ -53,7 +53,7 @@ def load_data2(config):
         batch_size=config["batch_size"],
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        dir["test"],
+        dir["facebankTest"],
         shuffle=False,
         label_mode="categorical",
         seed=123,

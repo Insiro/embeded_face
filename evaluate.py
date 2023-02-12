@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 from sklearn.metrics import classification_report
-
+from tqdm import tqdm
 from models.model import build_face_model
 from utils.util import load_data2
 
@@ -39,8 +39,8 @@ def get_values(labels, preds):
 def evaluate(model, ds, as_dict=False):
     predictions = np.array([])
     labels = np.array([])
-    for x, y in ds:
-        ret = model.predict(x)
+    for x, y in tqdm(ds):
+        ret = model.predict(x, verbose=False)
         predictions = np.concatenate([predictions, np.argmax(ret, axis=-1)])
         labels = np.concatenate([labels, np.argmax(y.numpy(), axis=-1)])
     # mat = multilabel_confusion_matrix(labels, predictions)
@@ -67,10 +67,10 @@ def evaluate(model, ds, as_dict=False):
 def _main(coonfig):
     train_ds, test_ds, val_ds, _class_names = load_data2(config)
     model = build_face_model(100)
-    model.load_weights("./output/out2/epoch172_loss2.90466_acc0.416")
+    model.load_weights("./epoch113_loss3.41887_acc0.895")
     model.summary()
     value = evaluate(model, test_ds, as_dict=True)
-    output_path = path.join(config['dir']["output"], "result")
+    output_path = path.join(config["dir"]["output"], "result")
     if not path.exists(output_path):
         makedirs(output_path)
     with open(path.join(output_path, "result.json"), "w") as f:
@@ -81,5 +81,5 @@ if __name__ == "__main__":
     config = None
     with open("./config.yaml", "r") as cf:
         config = yaml.load(cf, Loader=yaml.Loader)
-    with tf.device("/cpu:0"):
+    with tf.device("/gpu:0"):
         _main(config)

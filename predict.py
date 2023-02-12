@@ -7,7 +7,7 @@ from numpy.linalg import norm
 import tensorflow as tf
 import yaml
 from cv2 import imread
-from keras import Model
+from keras import Model, Sequential
 from tqdm import tqdm
 import json
 
@@ -31,11 +31,13 @@ def gen_embeds(model: Model, regit_dir: str, embed_dir: str):
         for img_name in listdir(cur_folder):
             img = imread(path.join(cur_folder, img_name))
             img = img[np.newaxis, :, :, :]
-            pred = model(img)
-            embeds.extend(pred.tolist())
+
+            pred = model(img, training=False)
+            embeds.extend(pred.numpy().tolist())
 
         with open(path.join(out_name), "wb") as f:
             np.save(f, np.array(embeds))
+    print("embeds are updated")
 
 
 def load_embeds(bank_dir: str):
@@ -90,9 +92,10 @@ def main():
         dir_config = yaml.load(cf, Loader=yaml.Loader)["dir"]
 
     model = build_face_model(100)
-    model.load_weights("./best_loss0.20312_acc0.890")
-
-    # gen_embeds(model, dir_config["facebank"], dir_config["hashbank"])
+    model.load_weights("./epoch113_loss3.41887_acc0.895")
+    model = Sequential(model.layers[:-1])
+    model.summary()
+    gen_embeds(model, dir_config["facebank"], dir_config["hashbank"])
     embeds = load_embeds(dir_config["hashbank"])
 
     img = imread("/data/01.datasets/FaceBank/Trained_Test/ID22/ID22-F-W0N1G_O.bmp")

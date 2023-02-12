@@ -11,7 +11,7 @@ from keras.layers import (
     Lambda,
 )
 from keras.models import Model
-from .layers import ArcLayer, ArcMarginPenaltyLogists
+from .layers import ArcLayer
 
 
 class FaceMobile(Model):

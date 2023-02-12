@@ -74,10 +74,10 @@ class ArcLoss(Loss):
         # sin_m = tf.sin(logits)
         # target_logits = logits * cos_m - sin * sin_m
         #
-        logits = y_pred * (1 - y_true) + target_logits * y_true
+        logits = (1 - y_true) * y_pred + target_logits * y_true
         # feature re-scale
         logits *= self.scale
-        out = self.entropy(y_true, y_pred)
+        out = self.entropy(y_true, logits)
         return out
 
 
